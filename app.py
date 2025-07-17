@@ -8,14 +8,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
-from tensorflow.keras.applications.efficentnet import preprocess_input
+from tensorflow.keras.applications.efficientnet import preprocess_input
 from huggingface_hub import hf_hub_download
 import json
 from PIL import Image
 import io
 
-st.title("🐶🐱🐴 VGG16 이미지 분류기")
-
+st.title("🐠🐡🦈 물고기 이미지 분류기")
+st.write("🐠🐡🦈 이 이미지 분류기는 angel_fish, betta, electric_blue_acara, guppy 분류기입니다.")
+st.image(["angel_fish.jpg","betta.jpg","electric_blue_acara.jpg","guppy.jpg"],caption=["angel_fish.jpg","betta.jpg","electric_blue_acara.jpg","guppy.jpg"],width=300)
+#use_column_width=True
 # 모델 및 클래스 불러오기
 @st.cache_resource
 def load_model_and_labels():
@@ -47,9 +49,16 @@ if uploaded_file is not None:
 
     # 예측
     predictions = model.predict(img_array)
-    predicted_class = class_names[np.argmax(predictions)]
+    pred_probs = predictions[0]
+    max_prob = np.max(pred_probs)
+    predicted_class = class_names[np.argmax(pred_probs)]
 
-    st.markdown(f"### ✅ 예측 결과: **{predicted_class}**")
+    # 출력
+    if max_prob <= 0.6:
+        st.markdown("### ⚠️ 학습한 클래스가 아니거나, 분류를 실패했습니다.")
+    else:
+        st.markdown(f"### ✅ 예측 결과: **{predicted_class}**")
+
     st.markdown("### 🔢 클래스별 확률")
-    for i, prob in enumerate(predictions[0]):
+    for i, prob in enumerate(pred_probs):
         st.write(f"{class_names[i]}: {prob:.4f}")
